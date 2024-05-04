@@ -7,7 +7,8 @@ public class TestClass {
         Sydney.addToNode(3, "Elisa", "Granny", "2 Wallaby Way", "Sydney", "2147329413");
         Sydney.addToNode(3, "George", "ZDADA", "2 Wallaby Way", "Sydney", "2147329413");
         Sydney.addToNode(3, "Gregory", "BABA", "2 Wallaby Way", "Sydney", "2147329413");
-        Sydney.sortNode();
+        Sydney.removeNode("George", "ZDADA");
+        Sydney.mergeSort();
         //Sydney.sortNode();
         System.out.printf("%n%n%n%n%n");
         Sydney.displayAll();

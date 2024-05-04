@@ -140,7 +140,7 @@ public class PhoneBook {
     public void mergeSort() {
         this.node = mergeSortHelper(this.node, this.length);
     }
-    
+
     // Help me I dont even know whats going on anymoreeeee
     private PhoneNode mergeSortHelper(PhoneNode a, int length) {
         PhoneNode mergedNode = new PhoneNode();
@@ -153,8 +153,7 @@ public class PhoneBook {
             tempNode = tempNode.next;
             counter++;
         }
-
-        if (tempNode.prev != null) {tempNode.prev.next = null; tempNode.prev = null;}
+        if (tempNode != null) {if (tempNode.prev != null) {tempNode.prev.next = null; tempNode.prev = null;}}
         if (counter == 1) tempNode = null;
 
 
@@ -199,6 +198,7 @@ public class PhoneBook {
         if (length == 0) {return a;}
         return mergedNode.next;
     }
+    
     // Returns 1 if string a comes before in the alphabet. Returns 2 if they are equal. 
     // Returns 0 if b comes before in the alphabet
     private int compareStrings(String a, String b) {
