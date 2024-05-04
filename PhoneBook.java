@@ -2,6 +2,7 @@ public class PhoneBook {
     private PhoneNode node;
     private int length;
 
+    // Adds a new element to the linked list
     public void addToNode(int index, String firstName, String lastName, String address, String city, String phoneNumber) {
         PhoneNode tempNode = node;
         if (this.node == null) {
@@ -35,6 +36,7 @@ public class PhoneBook {
 
     }
 
+    // Displays all elements in the linked list
     public void displayAll() {
         PhoneNode tempNode = this.node;
         while (tempNode != null) {
@@ -43,7 +45,25 @@ public class PhoneBook {
         }
     }
 
+    // Edits a field of a specific person to a new value
+    public void editValue(String firstname, String lastName, String changedValue, String field) {
+        PhoneNode current = this.node;
+        while (current != null) {
+            if (current.getLastName().equals(lastName) && current.getFirstName().equals(firstname)) {
+                switch (field) {
+                    case "firstName": { current.setFirstName(changedValue); break; }
+                    case "lastName": { current.setLastName(changedValue); break;}
+                    case "address": { current.setAddress(changedValue); break;}
+                    case "phoneNumber": { current.setPhoneNumber(changedValue); break;}
+                    default: { throw new ArithmeticException("Field not found for editValue");}
+                }
+                break;
+            }
+            current = current.next;
+        }
+    }
 
+    // Removes an element from the linked list
     public void removeNode(String firstName, String lastName) {
         PhoneNode tempNode = this.node;
         while (tempNode != null) {
@@ -60,7 +80,9 @@ public class PhoneBook {
         }
     }
 
-    // Not that efficient of a sorting algorithim, but it works
+
+
+    // Not that efficient of a sorting algorithim, but it works. Designed for doubly linked lists
     public void sortNode() {
         PhoneNode current = this.node.next;
         PhoneNode mostRecentNode = current;
@@ -137,65 +159,125 @@ public class PhoneBook {
     }
 
     // Calls the actual merge sort method when it is called
-    public void mergeSort() {
+    public void mergeSort() {  
+        
+        // These two below can be interchanged. However, one is used for doubly linked lists
+        // Other is meant for singly linked lists
         this.node = mergeSortHelper(this.node, this.length);
+        //this.node = mergeSortSingly(this.node, this.length);
     }
 
-    // Help me I dont even know whats going on anymoreeeee
+    // Does merge sort without using doubly linked lists
+    private PhoneNode mergeSortSingly(PhoneNode front, int length) {
+        if (length <= 1) {
+            return front;
+        }
+
+        int midpoint = length / 2;
+        PhoneNode mid = front;
+        for (int i = 0; i < midpoint -1; i++) {
+            mid = mid.next;
+        }
+
+        PhoneNode half = mid.next;
+        mid.next = null;
+
+        PhoneNode nodeA = mergeSortSingly(front, midpoint);
+        PhoneNode nodeB = mergeSortSingly(half, length-midpoint);
+
+        return merge(nodeA, nodeB);
+    }
+    
+    // Helper method to the merge sort for singly linked lists
+    private PhoneNode merge(PhoneNode nodeA, PhoneNode nodeB) { 
+        PhoneNode merger = new PhoneNode();
+        PhoneNode navigation = merger;
+        
+        while (nodeA != null && nodeB != null) {
+            int compareA = compareStrings(nodeA.getLastName(), nodeB.getLastName());
+            int compareB = compareStrings(nodeA.getFirstName(), nodeB.getFirstName());
+
+            if (compareA == 1 || (compareA == 2 && compareB == 1) || (compareA == 2 && compareB == 2)) {
+                navigation.next = nodeA;
+                nodeA = nodeA.next;
+            } else {
+                navigation.next = nodeB;
+                nodeB = nodeB.next;
+            }
+
+            navigation = navigation.next;
+        }
+        if (nodeB != null) {navigation.next = nodeB;}
+        else if (nodeA != null) {navigation.next = nodeA;}
+        return merger.next;
+    }
+
+
+
+    //  Merge sort for doubly linked lists
+    // This method is very long, but its the first time I've messed with implementing a mergeSort algorithim
     private PhoneNode mergeSortHelper(PhoneNode a, int length) {
-        PhoneNode mergedNode = new PhoneNode();
-        int counter = 1;
+
+        // Checks if the length of the node is 1, if it is then it just returns itself
+        // This is because its already fully sorted
+        if (length <= 1) {return a;}
+
         PhoneNode tempNode = a;
-        int length2 = (length%2 > 0) ? (length/2 + 1) : length/2;
+        int length1 = length/2;
+        int length2 = length - length1;
 
-        length = length/2;
-        while ((counter <= length)&& tempNode != null) {
+        // Cycles through the phonenode to find the midpoint
+        for (int i = 0; i < length1 - 1 && tempNode != null; i++) {
             tempNode = tempNode.next;
-            counter++;
         }
-        if (tempNode != null) {if (tempNode.prev != null) {tempNode.prev.next = null; tempNode.prev = null;}}
-        if (counter == 1) tempNode = null;
+        PhoneNode second = tempNode.next; // Creates a reference point at the second half of the linked list
+        tempNode.next = null;
+
+        // These methods call the method itself, and then sorts each part
+        PhoneNode nodeC = mergeSortHelper(second, length2);
+        PhoneNode nodeD = mergeSortHelper(a, length1);
+
+        // ______________________________________________________________________ BELOW MERGES THE LIST
 
 
+        PhoneNode mergedNode = new PhoneNode(); // Creates the node that is to be returned at the end
+        PhoneNode navigationNode = mergedNode; // Navigation reference point to navigate the merger node
 
-        if (length != 0) {
-            PhoneNode nodeC = mergeSortHelper(tempNode, length2);
-            PhoneNode nodeD = mergeSortHelper(a, length);
-            
+        // If either of these are null, then we can skip this and add the other chain
+        while (nodeC != null && nodeD != null) {
+            // Gets the values to compare the first and last names of each node
+            int comparedA = compareStrings(nodeC.getLastName(), nodeD.getLastName());
+            int comparedB = compareStrings(nodeC.getFirstName(), nodeD.getFirstName());
 
-            PhoneNode navigationNode = mergedNode;
+            // If A comes first, then it does this
+            if (comparedA == 1 || (comparedA == 2 && comparedB == 1) || (comparedA == 2 && comparedB == 2)) {
 
-            while (nodeC != null && nodeD != null) {
-                int comparedA = compareStrings(nodeC.getLastName(), nodeD.getLastName());
-                int comparedB = compareStrings(nodeC.getFirstName(), nodeD.getFirstName());
-                if (comparedA == 1 || (comparedA == 2 && comparedB == 1) || (comparedA == 2 && comparedB == 2)) {
-                    navigationNode.next = nodeC;
-                    navigationNode.next.prev = navigationNode;
-                    navigationNode = navigationNode.next;
-                    nodeC = nodeC.next;
-                    
-                } else if (comparedA == 0 || (comparedA == 2 && comparedB == 0)) {
-                    navigationNode.next = nodeD;
-                    navigationNode.next.prev = navigationNode;
-                    navigationNode = navigationNode.next;
-                    nodeD = nodeD.next;
-                }
-            }
-            while (nodeC != null) {navigationNode.next = nodeC;
-                navigationNode.next.prev = navigationNode;
-                navigationNode = navigationNode.next;
-                nodeC = nodeC.next;
-
-            }
-            while (nodeD != null) {navigationNode.next = nodeD;
-                navigationNode.next.prev = navigationNode;
-                navigationNode = navigationNode.next;
-                nodeD = nodeD.next;
-
+                navigationNode.next = nodeC; // Sets the next reference in the merged list to the reference of NodeC
+                nodeC.prev = navigationNode;  // Connects it back to the working part of the merged list
+                nodeC = nodeC.next; // Moves the nodeC list to the next value
+                
+                // else if B comes first then it does this. Not exactly sure why its an else if, but I don't want to break it
+            } else if (comparedA == 0 || (comparedA == 2 && comparedB == 0)) {
+                navigationNode.next = nodeD; // Sets the next reference in the merged list to the reference of NodeD
+                nodeD.prev = navigationNode; // Connects it back to the working part of the merged list
+                nodeD = nodeD.next; // Moves the nodeC list to the next value
             }
 
+            navigationNode = navigationNode.next; // Moves the navigation node to the next
         }
-        if (length == 0) {return a;}
+
+
+        // Adds the first chain to the list if it's not completely empty
+        if (nodeC != null) {
+            navigationNode.next = nodeC; // Attaches the navigation node to the first node list
+            nodeC.prev = navigationNode; // Attaches the first node list to the navigation node
+        } 
+        else if (nodeD != null) { // Adds the second chain to the list
+            navigationNode.next = nodeD; // Same thing but for the second node list
+            nodeD.prev = navigationNode;
+        }
+
+
         return mergedNode.next;
     }
     
