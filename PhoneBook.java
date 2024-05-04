@@ -1,5 +1,6 @@
 public class PhoneBook {
     private PhoneNode node;
+    private int length;
 
     public void addToNode(int index, String firstName, String lastName, String address, String city, String phoneNumber) {
         PhoneNode tempNode = node;
@@ -7,7 +8,8 @@ public class PhoneBook {
             this.node = new PhoneNode(firstName, lastName, address, city, phoneNumber);
         } else if (index == 0) {
             tempNode = new PhoneNode(firstName, lastName, address, city, phoneNumber);
-            tempNode.next = this.node; this.node.prev = tempNode;
+            tempNode.next = this.node; 
+            this.node.prev = tempNode;
             this.node = tempNode;
         } else {
             int counter = 1;
@@ -15,16 +17,19 @@ public class PhoneBook {
                 tempNode = tempNode.next;
                 counter++;
             }
-            if (counter < index) {
+            if (counter < index) { // if counter is still less than index
                 PhoneNode newNode = new PhoneNode(firstName, lastName, address, city, phoneNumber);
                 tempNode.next = newNode;
                 newNode.prev = tempNode;
-            } else {
+                tempNode.next.prev = tempNode;
+            } else { // If counter is already greater than index or equal to the index
                 PhoneNode newNode = new PhoneNode(firstName, lastName, address, city, phoneNumber, tempNode.next);
                 tempNode.next = newNode;
                 newNode.prev = tempNode;
+                if (newNode.next != null) newNode.next.prev = newNode;
             }
         }
+        this.length += 1;
 
 
 
@@ -55,11 +60,10 @@ public class PhoneBook {
         }
     }
 
-    // Not that efficient of a sorting algorithim. 
-
+    // Not that efficient of a sorting algorithim, but it works
     public void sortNode() {
         PhoneNode current = this.node.next;
-        //PhoneNode mostRecentNode = current;
+        PhoneNode mostRecentNode = current;
         while (current != null) {
             if (current.prev == null) {
                 current = current.next;
@@ -88,6 +92,8 @@ public class PhoneBook {
                     prevNode.prev = current; // Changes node 2's link from node 1 to node 3
                     prevNode.next = current.next; // Changes node 2's link from node 3 to node 4
                     current.next = prevNode; // changes Node 3's link from node 4 to node 2
+                    
+                    if (current == mostRecentNode) {mostRecentNode = prevNode;}
                 }
                 
                 // Case 2: Node 1 doesn't exist (Start of the list)
@@ -98,6 +104,7 @@ public class PhoneBook {
                     prevNode.next = current.next; // Sets node 2's next connection to 4
                     current.next = prevNode; // Sets node 3's connection from 4 to 3
 
+                    if (current == mostRecentNode) {mostRecentNode = prevNode;}
                     this.node = current;
                 }  
                 
@@ -109,6 +116,7 @@ public class PhoneBook {
                     prevNode.prev.next = current; // Sets the next connection for node 1 to node 3
                     prevNode.prev = current; // Sets the previous connection for node 2 to node 3
 
+                    if (current == mostRecentNode) {mostRecentNode = prevNode;}
                 }  
                 
                 // Case 4: Node 1 and 4 doesn't exist, (The list is 2 nodes long)
@@ -122,11 +130,75 @@ public class PhoneBook {
                     
                 }
             } else {
-                current = current.next;
+                mostRecentNode = mostRecentNode.next;
+                current = mostRecentNode;
             }
         }
     }
 
+    // Calls the actual merge sort method when it is called
+    public void mergeSort() {
+        this.node = mergeSortHelper(this.node, this.length);
+    }
+    
+    // Help me I dont even know whats going on anymoreeeee
+    private PhoneNode mergeSortHelper(PhoneNode a, int length) {
+        PhoneNode mergedNode = new PhoneNode();
+        int counter = 1;
+        PhoneNode tempNode = a;
+        int length2 = (length%2 > 0) ? (length/2 + 1) : length/2;
+
+        length = length/2;
+        while ((counter <= length)&& tempNode != null) {
+            tempNode = tempNode.next;
+            counter++;
+        }
+
+        if (tempNode.prev != null) {tempNode.prev.next = null; tempNode.prev = null;}
+        if (counter == 1) tempNode = null;
+
+
+
+        if (length != 0) {
+            PhoneNode nodeC = mergeSortHelper(tempNode, length2);
+            PhoneNode nodeD = mergeSortHelper(a, length);
+            
+
+            PhoneNode navigationNode = mergedNode;
+
+            while (nodeC != null && nodeD != null) {
+                int comparedA = compareStrings(nodeC.getLastName(), nodeD.getLastName());
+                int comparedB = compareStrings(nodeC.getFirstName(), nodeD.getFirstName());
+                if (comparedA == 1 || (comparedA == 2 && comparedB == 1) || (comparedA == 2 && comparedB == 2)) {
+                    navigationNode.next = nodeC;
+                    navigationNode.next.prev = navigationNode;
+                    navigationNode = navigationNode.next;
+                    nodeC = nodeC.next;
+                    
+                } else if (comparedA == 0 || (comparedA == 2 && comparedB == 0)) {
+                    navigationNode.next = nodeD;
+                    navigationNode.next.prev = navigationNode;
+                    navigationNode = navigationNode.next;
+                    nodeD = nodeD.next;
+                }
+            }
+            while (nodeC != null) {navigationNode.next = nodeC;
+                navigationNode.next.prev = navigationNode;
+                navigationNode = navigationNode.next;
+                nodeC = nodeC.next;
+
+            }
+            while (nodeD != null) {navigationNode.next = nodeD;
+                navigationNode.next.prev = navigationNode;
+                navigationNode = navigationNode.next;
+                nodeD = nodeD.next;
+
+            }
+
+        }
+        if (length == 0) {return a;}
+        return mergedNode.next;
+    }
     // Returns 1 if string a comes before in the alphabet. Returns 2 if they are equal. 
     // Returns 0 if b comes before in the alphabet
     private int compareStrings(String a, String b) {
