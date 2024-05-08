@@ -2,9 +2,21 @@ public class PhoneBook {
     private PhoneNode node;
     private int length;
 
+    // Adds a new element to the linked list but at the end
+    public void addToNode(String firstName, String lastName, String address, String city, String phoneNumber) {
+        PhoneNode tempNode = this.node;
+        while (tempNode.next != null) {
+            tempNode = tempNode.next;
+        }
+        PhoneNode dummy = new PhoneNode(firstName, lastName, address, city, phoneNumber);
+        this.length++;
+        dummy.prev = tempNode;
+        tempNode.next = dummy;
+    }
+
     // Adds a new element to the linked list
     public void addToNode(int index, String firstName, String lastName, String address, String city, String phoneNumber) {
-        PhoneNode tempNode = node;
+        PhoneNode tempNode = this.node;
         if (this.node == null) {
             this.node = new PhoneNode(firstName, lastName, address, city, phoneNumber);
         } else if (index == 0) {
@@ -79,8 +91,6 @@ public class PhoneBook {
             tempNode = tempNode.next;
         }
     }
-
-
 
     // Not that efficient of a sorting algorithim, but it works. Designed for doubly linked lists
     public void sortNode() {
@@ -159,12 +169,11 @@ public class PhoneBook {
     }
 
     // Calls the actual merge sort method when it is called
-    public void mergeSort() {  
-        
-        // These two below can be interchanged. However, one is used for doubly linked lists
-        // Other is meant for singly linked lists
+    public void mergeSortDoubly() {  
         this.node = mergeSortHelper(this.node, this.length);
-        //this.node = mergeSortSingly(this.node, this.length);
+    }
+    public void mergeSingly() {
+        this.node = mergeSortSingly(this.node, this.length);
     }
 
     // Does merge sort without using doubly linked lists
